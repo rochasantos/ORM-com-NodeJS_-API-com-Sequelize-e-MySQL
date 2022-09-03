@@ -51,6 +51,70 @@ class PessoaController {
       return res.status(500).json(error.message)
     }
   }
+  // /pessoas/:estudateId/matricula/:matriculaId
+  static async pegaUmaMatricula(req, res) {
+    const {estudanteId, matriculaId} = req.params
+    try {
+      const matricula = await database.Matriculas.findOne({
+        where: {
+          id: Number(matriculaId),
+          estudante_id: Number(estudanteId)
+        }
+      })
+      return res.status(200).json(matricula)
+    } catch (error) {
+      return res.status(500).json({mensagem: error.message})
+    }
+  }
+  // /pessoas/:estudateId/matricula
+  static async criaMatricula(req, res) {
+    const {estudanteId} = req.params
+    const dadosDaMatricula = { ...req.body, estudante_id: Number(estudanteId)}
+    try {
+      const matriculaCriada = await database.Matriculas.create(dadosDaMatricula)
+      return res.status(200).json(matriculaCriada)      
+    } catch (error) {
+      return res.status(500).json({mensagem: error.message})
+    }
+  }
+
+  // /pessoas/:estudanteId/matricula/matriculaId
+  static async atualizaMatricula(req, res) {
+    const {estudanteId, matriculaId} = req.params
+    const dadosDaMatricula = req.body
+    try {
+      await database.Matriculas.update(dadosDaMatricula, {
+        where: {
+          id: Number(matriculaId),
+          estudante_id: Number(estudanteId)
+        }
+      })
+      const matriculaAtualizada = await database.Matriculas.findOne({
+        where: {
+          id: Number(matriculaId),
+          estudante_id: Number(estudanteId)
+        }
+      })
+      res.status(200).json(matriculaAtualizada)
+    } catch (error) {
+      res.status(500).json({mensagem: error.message})
+    }
+  }
+  // /pessoas/:estudanteId/matricula/:matriculaId
+  static async deletaMatricula(req, res) {
+    const {estudanteId, matriculaId} = req.params
+    try {
+      await database.Matriculas.destroy({
+        where: {
+          id: Number(matriculaId),
+          estudante_id: Number(estudanteId)
+        }
+      })
+      return res.status(200).send("Matricula deletada com sucesso!")
+    } catch (error) {
+      return res.status(500).json({mensagem: error.message})
+    }
+  }
 }
 
 module.exports = PessoaController
